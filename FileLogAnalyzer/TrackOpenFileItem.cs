@@ -8,7 +8,7 @@ namespace FileLogAnalyzer
 {
     class TrackOpenFileItem
     {
-        public string TimeOfDay { get; set;  }
+        public string TimeOfDay { get; set; }
         public string ThreadId { get; set; }
         public string Type { get; set; }
         public string FilePath { get; set; }
@@ -16,37 +16,22 @@ namespace FileLogAnalyzer
         public string Detail { get; set; }
         public int OpenCount { get; set; }
 
-        public TrackOpenFileItem()
+        public TrackOpenFileItem(FileOperateLog log)
         {
-            OpenCount = 0;
-        }
+            TimeOfDay = log.TimeOfDay;
+            ThreadId = log.ThreadId;
+            Type = log.Type;
+            FilePath = log.FilePath;
+            Result = log.Result;
+            Detail = log.Detail;
 
-        public TrackOpenFileItem(string timeOfDay, string threadId, string type,
-            string filePath, string result, string detail)
-        {
-            TimeOfDay = timeOfDay;
-            ThreadId = threadId;
-            Type = type;
-            FilePath = filePath;
-            Result = result;
-            Detail = detail;
-            OpenCount = 0;
-        }
-
-        public TrackOpenFileItem(string timeOfDay, string type, string filePath, string result, string detail)
-        {
-            TimeOfDay = timeOfDay;
-            Type = type;
-            FilePath = filePath;
-            Result = result;
-            Detail = detail;
-            OpenCount = 0;
+            OpenCount = 1;
         }
 
         public override string ToString()
         {
-            return string.Format("TimeOfDay:{0},Type:{1},FilePath:{2},Result:{3},Detail:{4},OpenCount:{5}",
-                TimeOfDay, Type, FilePath, Result, Detail, OpenCount);
+            return string.Format("TimeOfDay:{0},ThreadId:{1},Type:{2},FilePath:{3},Result:{4},Detail:{5},OpenCount:{6}",
+                TimeOfDay, ThreadId, Type, FilePath, Result, Detail, OpenCount);
         }
     }
 }

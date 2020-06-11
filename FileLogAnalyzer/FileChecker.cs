@@ -11,14 +11,10 @@ namespace FileLogAnalyzer
         public static bool IsTargetFileForAnalysis(string filePath, string operationResult, string detail)
         {
             // 파일이 아니면 분석 제외
-            if (detail.Contains("Non-Directory") == false)
+            if (filePath.Contains(".") == false)
             {
                 return false;
             }
-            //if (filePath.Contains(".") == false)
-            //{
-            //    return false;
-            //}
 
             // DLL 및 EXE 파일 분석 제외 
             if (filePath.Contains(".dll") == true || filePath.Contains(".exe") == true)

@@ -10,14 +10,18 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using System.Xml;
+using System.Globalization;
 
 namespace FileLogAnalyzer
 {
 
     public partial class AnalyzeFileLogForm : Form
     {
-        private readonly string[] fieldSeparator = new string[] { "\",\"" };  
-        private readonly char[] charsToTrim = { '오', '전', '후', '"', ' ', '\t' };
+        private int trackMaxOpenedFileCount;
+        private int outputReportCount;
+        private int openedButNotClosedReportCount;
+        private int closedButTryingWriteCount;
+        private int handledByMuliTreadCount;
 
         public AnalyzeFileLogForm()
         {
@@ -26,148 +30,69 @@ namespace FileLogAnalyzer
 
         private void btStart_Click(object sender, EventArgs e)
         {
+            FileOperationLogBuilder logBuilder = new FileOperationLogBuilder();
             Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary = new Dictionary<string, TrackOpenFileItem>();
-            StreamReader fileOperateLogReader = null;
-            int maxOpenedCount = 0;
+            StreamReader logReader = null;
+
+            // 통계정보 
+            trackMaxOpenedFileCount = 0;
+            outputReportCount = 0;
+            openedButNotClosedReportCount = 0;
+            closedButTryingWriteCount = 0;
+            handledByMuliTreadCount = 0;
 
             // 로그 파일 전체 읽기
-            //string logPath = GetLogPathFromUser();
-            //if (logPath == null)
-            //{
-            //    return;
-            //}
-            string logPath = @"D:\Working\7.3m C&M Manage\이슈\서버 비정상 종료\로그\200610_K3A.CSV";
+            string logPath = GetLogPathFromUser();
+            if (logPath == null)
+            {
+                return;
+            }
 
             logPathView.Text = "Log Path :" + logPath;
 
             // 로그 파일 구조화
             try
             {
-                int hbmIndex = 0;
-                int cbtwIndex = 0;
-                int outputIndex = 0;
+                logReader = new StreamReader(logPath);
 
-                fileOperateLogReader = new StreamReader(logPath);
+                // 첫째 줄에 있는 헤더 정보는 패스
+                string rawLog = logReader.ReadLine();
 
-                // Remove a first line as the header. 
-                string line = fileOperateLogReader.ReadLine();
-
-                while (fileOperateLogReader.Peek() >= 0)
+                while (logReader.Peek() >= 0)
                 {
+                    // 파일 연산 로그 읽기
+                    rawLog = logReader.ReadLine();
 
-                    // 하나의 파일 연산 로그 읽기
-                    line = fileOperateLogReader.ReadLine();
+                    FileOperateLog fileOperateLog = new FileOperateLog();
 
-                    // 로그를 각 필드로 구분
-                    string[] fields = line.Split(fieldSeparator, StringSplitOptions.None);
-
-                    for (int i = 0; i < fields.Length; i++)
-                    {
-                        fields[i] = fields[i].Trim(charsToTrim);
-                    }
-
-                    if (fields.Length < 8)
+                    // 연산 로그 구조화 
+                    if (logBuilder.Build(rawLog, fileOperateLog) == false)
                     {
                         continue;
                     }
 
-                    // 열린 파일 추적 자료 생성
-                    TrackOpenFileItem alreadyTrackItem;
-                    TrackOpenFileItem newTrackItem = TrackItemFactory.CreateTrackItem(fields);
-                    
-                    if (!FileChecker.IsTargetFileForAnalysis(newTrackItem.FilePath, newTrackItem.Result, newTrackItem.Detail))
+                    // 분석 대상 파일여부 확인 (폴더, OS파일, exe, dll 분석 대상에서 제외) 
+                    if (!FileChecker.IsTargetFileForAnalysis(fileOperateLog.FilePath, fileOperateLog.Result, fileOperateLog.Detail))
                     {
                         continue;
                     }
 
-                    if (newTrackItem.Type == "CreateFile")
+                    // 각 파일 연산 별 처리
+                    if (fileOperateLog.Type == "CreateFile")
                     {
-                        if (trackOpenFileDictionary.TryGetValue(newTrackItem.FilePath, out alreadyTrackItem) == true)
-                        {
-
-                            if (newTrackItem.ThreadId != alreadyTrackItem.ThreadId)
-                            {
-                                handledByMulithreadReport.AppendText("[ " + hbmIndex + " Open ]" + newTrackItem.FilePath + "\r\n");
-                                hbmIndex++;
-                            }
-
-                            outputIndex++;
-                            alreadyTrackItem.OpenCount++;
-                            if (alreadyTrackItem.OpenCount > 1)
-                            {
-                                outputView.AppendText(outputIndex + " ] 2번 이상 열림 (" + newTrackItem.FilePath + " / " + alreadyTrackItem.OpenCount + " )" + "\r\n");
-                            }
-
-                        }
-                        else
-                        {
-                            trackOpenFileDictionary.Add(newTrackItem.FilePath, newTrackItem);
-                            newTrackItem.OpenCount++;
-
-
-                            // 열린 파일 최대로 많은 경우 추적
-                            if (trackOpenFileDictionary.Count > maxOpenedCount)
-                            {
-                                maxOpenedCount = trackOpenFileDictionary.Count;
-
-                                // 열린 파일이 500개 이상이면 레포팅
-                                if (maxOpenedCount > 500)
-                                {
-                                    outputView.AppendText("Opend File count is greater than 500 \r\n");
-                                }
-                            }
-
-                        }
-
-
+                        ProcessOpenFileLog(trackOpenFileDictionary, fileOperateLog);
                     }
-                    else if (newTrackItem.Type == "CloseFile")
+                    else if (fileOperateLog.Type == "CloseFile")
                     {
-                        if (trackOpenFileDictionary.TryGetValue(newTrackItem.FilePath, out alreadyTrackItem) == true)
-                        {
-                            if (newTrackItem.ThreadId != alreadyTrackItem.ThreadId)
-                            {
-                                handledByMulithreadReport.AppendText("[ " + hbmIndex + " Closed ]" + newTrackItem.FilePath + "\r\n");
-                                hbmIndex++;
-                            }
-
-                            alreadyTrackItem.OpenCount--;
-                            if (alreadyTrackItem.OpenCount <= 0)
-                            {
-                                trackOpenFileDictionary.Remove(newTrackItem.FilePath);
-                            }
-                        }
-                        else
-                        {
-                            outputView.AppendText("열리지 않은 파일이 닫힘" + newTrackItem.ToString() + "\r\n");
-                        }
-
-                        if (trackOpenFileDictionary.Count > 500)
-                        {
-                            outputView.AppendText("Opend File count is greater than 500 \r\n");
-                        }
+                        ProcessCloseFileLog(trackOpenFileDictionary, fileOperateLog);
                     }
-                    else if (newTrackItem.Type == "WriteFile")
+                    else if (fileOperateLog.Type == "WriteFile")
                     {
-                        // 닫힌 파일에 대한 쓰기 시도 추적
-                        if (trackOpenFileDictionary.TryGetValue(newTrackItem.FilePath, out alreadyTrackItem) == false)
-                        {
-                            closedButTryingWriteReport.AppendText("[ " + cbtwIndex + " ]" + newTrackItem.FilePath + "\r\n");
-                            cbtwIndex++;
-                        }
-                        else
-                        {
-                            // 서로 다른 쓰레드에서 접근하는 파일 추적 
-                            if (newTrackItem.ThreadId != alreadyTrackItem.ThreadId)
-                            {
-                                handledByMulithreadReport.AppendText("[ " + hbmIndex + " ]" + newTrackItem.FilePath + "\r\n");
-                                hbmIndex++;
-                            }
-                        }
+                        ProcessWriteFileLog(trackOpenFileDictionary, fileOperateLog);
                     }
                     else
                     {
-
+                        // Do not process others.
                     }
 
                 }
@@ -179,23 +104,113 @@ namespace FileLogAnalyzer
             }
             finally
             {
-                if (fileOperateLogReader != null)
+                if (logReader != null)
                 {
-                    fileOperateLogReader.Dispose();
+                    logReader.Dispose();
                 }
-
-                outputView.AppendText("Opend File count is " + trackOpenFileDictionary.Count + "," + maxOpenedCount + "\r\n");
             }
 
-            int index = 1;
-
+            // 열고 닫지 않은 파일 확인
             foreach(var item in trackOpenFileDictionary.ToList())
             {
-                opendButNotClosedReporter.AppendText("[ " + index + " ]" + item.Value.FilePath + "\r\n");
-                index++;
+                opendButNotClosedReporter.AppendText("- " + item.Value.ToString() + "\r\n");
+                openedButNotClosedReportCount++;
             }
 
+            // 통계정보 출력
+            outputView.AppendText("- 동시에 열린 파일 개수 최대치 : " + trackMaxOpenedFileCount + "\r\n");
+            outputReportCount++;
 
+            outputView.AppendText("Total = " + outputReportCount + "\r\n");
+            opendButNotClosedReporter.AppendText("Total = " + openedButNotClosedReportCount + "\r\n");
+            closedButTryingWriteReport.AppendText("Total = " + closedButTryingWriteCount + "\r\n");
+            handledByMulithreadReport.AppendText("Total = " + handledByMuliTreadCount + "\r\n");
+
+        }
+
+
+        private void ProcessOpenFileLog(Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary, FileOperateLog fileOperateLog)
+        {
+            TrackOpenFileItem newTrackItem = new TrackOpenFileItem(fileOperateLog);
+            TrackOpenFileItem alreadyTrackItem;
+
+            if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == true)
+            {
+                if (newTrackItem.ThreadId != alreadyTrackItem.ThreadId)
+                {
+                    handledByMulithreadReport.AppendText("- 기존에 열린 파일을 다른 쓰레드에서 다시 엽니다 - " + newTrackItem.ToString() + "\r\n");
+                    handledByMuliTreadCount++;
+                }
+
+                alreadyTrackItem.OpenCount++;
+                if (alreadyTrackItem.OpenCount > 1)
+                {
+                    outputView.AppendText("- 같은 파일을 2번 이상 엽니다 - " + newTrackItem.ToString() + "\r\n");
+                    outputReportCount++;
+                }
+            }
+            else
+            {
+                trackOpenFileDictionary.Add(newTrackItem.FilePath, newTrackItem);
+
+                // 열린 파일 최대로 많은 경우 추적
+                if (trackOpenFileDictionary.Count > trackMaxOpenedFileCount)
+                {
+                    trackMaxOpenedFileCount = trackOpenFileDictionary.Count;
+
+                    // 열린 파일이 500개 이상이면 레포팅
+                    if (trackMaxOpenedFileCount > 500)
+                    {
+                        outputView.AppendText("- 500개 이상의 파일을 동시에 엽니다 \r\n");
+                    }
+                }
+
+            }
+        }
+
+        private void ProcessCloseFileLog(Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary, FileOperateLog fileOperateLog)
+        {
+            TrackOpenFileItem alreadyTrackItem;
+
+            if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == true)
+            {
+                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
+                {
+                    handledByMulithreadReport.AppendText("- 기존에 다른 쓰레드에서 열린 파일을 닫습니다 - " + fileOperateLog.ToString() + "\r\n");
+                    handledByMuliTreadCount++;
+                }
+
+                alreadyTrackItem.OpenCount--;
+                if (alreadyTrackItem.OpenCount <= 0)
+                {
+                    trackOpenFileDictionary.Remove(fileOperateLog.FilePath);
+                }
+            }
+            else
+            {
+                outputView.AppendText("- 열리지 않은 파일이 닫힘" + fileOperateLog.ToString() + "\r\n");
+            }
+        }
+
+        private void ProcessWriteFileLog(Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary, FileOperateLog fileOperateLog)
+        {
+            TrackOpenFileItem alreadyTrackItem;
+
+            // 닫힌 파일에 대한 쓰기 시도 추적
+            if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == false)
+            {
+                closedButTryingWriteReport.AppendText("- " + fileOperateLog.ToString() + "\r\n");
+                closedButTryingWriteCount++;
+            }
+            else
+            {
+                // 서로 다른 쓰레드에서 접근하는 파일 추적 
+                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
+                {
+                    handledByMulithreadReport.AppendText("- " + fileOperateLog.ToString() + "\r\n");
+                    handledByMuliTreadCount++;
+                }
+            }
         }
 
         private string GetLogPathFromUser()
