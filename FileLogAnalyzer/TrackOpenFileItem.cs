@@ -27,6 +27,11 @@ namespace FileLogAnalyzer
 
             OpenCount = 1;
         }
+        
+        public string ToKeyString()
+        {
+            return string.Format("{0} / {1}", ThreadId, FilePath);
+        }
 
         public override string ToString()
         {

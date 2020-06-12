@@ -74,20 +74,18 @@
   <ItemGroup>
     <Compile Include="FileChecker.cs" />
     <Compile Include="FileOperateLog.cs" />
-    <Compile Include="FileOperationLogBuilder.cs" />
-    <Compile Include="ReportManager.cs" />
-    <Compile Include="TrackItemFactory.cs" />
+    <Compile Include="FileOperateLogBuilder.cs" />
     <Compile Include="TrackOpenFileItem.cs" />
-    <Compile Include="AnalyzeFileLogForm.cs">
+    <Compile Include="AnalyzeFileOperateLogForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AnalyzeFileLogForm.Designer.cs">
-      <DependentUpon>AnalyzeFileLogForm.cs</DependentUpon>
+    <Compile Include="AnalyzeFileOperateLogForm.Designer.cs">
+      <DependentUpon>AnalyzeFileOperateLogForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AnalyzeFileLogForm.resx">
-      <DependentUpon>AnalyzeFileLogForm.cs</DependentUpon>
+    <EmbeddedResource Include="AnalyzeFileOperateLogForm.resx">
+      <DependentUpon>AnalyzeFileOperateLogForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\licenses.licx" />
     <EmbeddedResource Include="Properties\Resources.resx">

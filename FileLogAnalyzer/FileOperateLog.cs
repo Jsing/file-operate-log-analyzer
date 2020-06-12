@@ -17,10 +17,15 @@ namespace FileLogAnalyzer
 
         public FileOperateLog() { }
 
+        public string ToKeyString()
+        {
+            return string.Format("{0} / {1}", ThreadId, FilePath);
+        }
+
         public override string ToString()
         {
-            return string.Format("TimeOfDay:{0},Type:{1},FilePath:{2},Result:{3},Detail:{4}",
-                TimeOfDay, Type, FilePath, Result, Detail);
+            return string.Format("TimeOfDay:{0},ThreadId:{1},Type:{2},FilePath:{3},Result:{4},Detail:{5}",
+                TimeOfDay, ThreadId, Type, FilePath, Result, Detail);
         }
     }
 }

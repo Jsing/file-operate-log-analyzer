@@ -1,6 +1,6 @@
 ﻿namespace FileLogAnalyzer
 {
-    partial class AnalyzeFileLogForm
+    partial class AnalyzeFileOperateLogForm
     {
         /// <summary>
         /// Required designer variable.

@@ -16,7 +16,7 @@ namespace FileLogAnalyzer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AnalyzeFileLogForm());
+            Application.Run(new AnalyzeFileOperateLogForm());
         }
     }
 }

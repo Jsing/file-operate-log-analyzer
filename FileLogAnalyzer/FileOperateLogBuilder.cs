@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FileLogAnalyzer
 {
-    class FileOperationLogBuilder
+    class FileOperateLogBuilder
     {
         private readonly int logFieldCount = 8;
         private readonly string[] fieldSeparator = new string[] { "\",\"" };

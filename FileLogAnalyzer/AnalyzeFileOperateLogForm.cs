@@ -15,7 +15,7 @@ using System.Globalization;
 namespace FileLogAnalyzer
 {
 
-    public partial class AnalyzeFileLogForm : Form
+    public partial class AnalyzeFileOperateLogForm : Form
     {
         private int trackMaxOpenedFileCount;
         private int outputReportCount;
@@ -23,18 +23,21 @@ namespace FileLogAnalyzer
         private int closedButTryingWriteCount;
         private int handledByMuliTreadCount;
 
-        public AnalyzeFileLogForm()
+        public AnalyzeFileOperateLogForm()
         {
             InitializeComponent();
         }
 
         private void btStart_Click(object sender, EventArgs e)
         {
-            FileOperationLogBuilder logBuilder = new FileOperationLogBuilder();
+            FileOperateLogBuilder logBuilder = new FileOperateLogBuilder();
             Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary = new Dictionary<string, TrackOpenFileItem>();
             StreamReader logReader = null;
 
-            // 통계정보 
+            // 전체 리포팅 뷰 초기화
+            ClearView();
+
+            // 통계정보 초기화 
             trackMaxOpenedFileCount = 0;
             outputReportCount = 0;
             openedButNotClosedReportCount = 0;
@@ -48,24 +51,25 @@ namespace FileLogAnalyzer
                 return;
             }
 
+            // 처리할 로그 파일 경로 UI에 표시 
             logPathView.Text = "Log Path :" + logPath;
 
-            // 로그 파일 구조화
+            
             try
             {
                 logReader = new StreamReader(logPath);
 
-                // 첫째 줄에 있는 헤더 정보는 패스
+                // 로그 파일 첫째 줄에 있는 헤더 정보는 패스
                 string rawLog = logReader.ReadLine();
 
                 while (logReader.Peek() >= 0)
                 {
-                    // 파일 연산 로그 읽기
+                    // 하나의 파일 연산 로그 읽기
                     rawLog = logReader.ReadLine();
 
                     FileOperateLog fileOperateLog = new FileOperateLog();
 
-                    // 연산 로그 구조화 
+                    // 하나의 파일 연산 로그 구조화 
                     if (logBuilder.Build(rawLog, fileOperateLog) == false)
                     {
                         continue;
@@ -113,7 +117,7 @@ namespace FileLogAnalyzer
             // 열고 닫지 않은 파일 확인
             foreach(var item in trackOpenFileDictionary.ToList())
             {
-                opendButNotClosedReporter.AppendText("- " + item.Value.ToString() + "\r\n");
+                opendButNotClosedReporter.AppendText("- " + item.Value.ToKeyString() + "\r\n");
                 openedButNotClosedReportCount++;
             }
 
@@ -131,26 +135,27 @@ namespace FileLogAnalyzer
 
         private void ProcessOpenFileLog(Dictionary<String, TrackOpenFileItem> trackOpenFileDictionary, FileOperateLog fileOperateLog)
         {
-            TrackOpenFileItem newTrackItem = new TrackOpenFileItem(fileOperateLog);
             TrackOpenFileItem alreadyTrackItem;
 
             if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == true)
             {
-                if (newTrackItem.ThreadId != alreadyTrackItem.ThreadId)
+                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
                 {
-                    handledByMulithreadReport.AppendText("- 기존에 열린 파일을 다른 쓰레드에서 다시 엽니다 - " + newTrackItem.ToString() + "\r\n");
+                    handledByMulithreadReport.AppendText("- 기존에 열린 파일을 다른 쓰레드에서 다시 엽니다 - " + fileOperateLog.ToKeyString() + "\r\n");
                     handledByMuliTreadCount++;
                 }
 
                 alreadyTrackItem.OpenCount++;
                 if (alreadyTrackItem.OpenCount > 1)
                 {
-                    outputView.AppendText("- 같은 파일을 2번 이상 엽니다 - " + newTrackItem.ToString() + "\r\n");
+                    outputView.AppendText("- 같은 파일을 2번 이상 엽니다 - " + fileOperateLog.ToKeyString() + "\r\n");
                     outputReportCount++;
                 }
             }
             else
             {
+                TrackOpenFileItem newTrackItem = new TrackOpenFileItem(fileOperateLog);
+
                 trackOpenFileDictionary.Add(newTrackItem.FilePath, newTrackItem);
 
                 // 열린 파일 최대로 많은 경우 추적
@@ -176,7 +181,7 @@ namespace FileLogAnalyzer
             {
                 if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
                 {
-                    handledByMulithreadReport.AppendText("- 기존에 다른 쓰레드에서 열린 파일을 닫습니다 - " + fileOperateLog.ToString() + "\r\n");
+                    handledByMulithreadReport.AppendText("- 기존에 다른 쓰레드에서 열린 파일을 닫습니다 - " + fileOperateLog.ToKeyString() + "\r\n");
                     handledByMuliTreadCount++;
                 }
 
@@ -188,7 +193,7 @@ namespace FileLogAnalyzer
             }
             else
             {
-                outputView.AppendText("- 열리지 않은 파일이 닫힘" + fileOperateLog.ToString() + "\r\n");
+                outputView.AppendText("- 열리지 않은 파일이 닫힘" + fileOperateLog.ToKeyString() + "\r\n");
             }
         }
 
@@ -199,7 +204,7 @@ namespace FileLogAnalyzer
             // 닫힌 파일에 대한 쓰기 시도 추적
             if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == false)
             {
-                closedButTryingWriteReport.AppendText("- " + fileOperateLog.ToString() + "\r\n");
+                closedButTryingWriteReport.AppendText("- " + fileOperateLog.ToKeyString() + "\r\n");
                 closedButTryingWriteCount++;
             }
             else
@@ -207,7 +212,7 @@ namespace FileLogAnalyzer
                 // 서로 다른 쓰레드에서 접근하는 파일 추적 
                 if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
                 {
-                    handledByMulithreadReport.AppendText("- " + fileOperateLog.ToString() + "\r\n");
+                    handledByMulithreadReport.AppendText("- " + fileOperateLog.ToKeyString() + "\r\n");
                     handledByMuliTreadCount++;
                 }
             }
@@ -239,6 +244,11 @@ namespace FileLogAnalyzer
 
 
         private void btClearView_Click(object sender, EventArgs e)
+        {
+            ClearView();
+        }
+
+        private void ClearView()
         {
             outputView.Clear();
             closedButTryingWriteReport.Clear();
