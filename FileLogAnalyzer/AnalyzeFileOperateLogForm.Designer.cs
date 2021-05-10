@@ -52,14 +52,13 @@
             this.ultraLabel2.Name = "ultraLabel2";
             this.ultraLabel2.Size = new System.Drawing.Size(285, 23);
             this.ultraLabel2.TabIndex = 8;
-            this.ultraLabel2.Text = "[ Opened, but not Closed (OBNC) ]";
+            this.ultraLabel2.Text = "[ 열리고 닫히지 않은 파일 ]";
             // 
             // closedButTryingWriteReport
             // 
             this.closedButTryingWriteReport.Location = new System.Drawing.Point(10, 370);
             this.closedButTryingWriteReport.Multiline = true;
             this.closedButTryingWriteReport.Name = "closedButTryingWriteReport";
-            this.closedButTryingWriteReport.ReadOnly = true;
             this.closedButTryingWriteReport.Scrollbars = System.Windows.Forms.ScrollBars.Both;
             this.closedButTryingWriteReport.Size = new System.Drawing.Size(808, 113);
             this.closedButTryingWriteReport.TabIndex = 18;
@@ -71,14 +70,13 @@
             this.ultraLabel1.Name = "ultraLabel1";
             this.ultraLabel1.Size = new System.Drawing.Size(285, 23);
             this.ultraLabel1.TabIndex = 17;
-            this.ultraLabel1.Text = "[ Closed, but trying to Write (CBTW) ]";
+            this.ultraLabel1.Text = "[ 닫힌 파일에 대한 쓰기 시도 ]";
             // 
             // handledByMulithreadReport
             // 
             this.handledByMulithreadReport.Location = new System.Drawing.Point(10, 525);
             this.handledByMulithreadReport.Multiline = true;
             this.handledByMulithreadReport.Name = "handledByMulithreadReport";
-            this.handledByMulithreadReport.ReadOnly = true;
             this.handledByMulithreadReport.Scrollbars = System.Windows.Forms.ScrollBars.Both;
             this.handledByMulithreadReport.Size = new System.Drawing.Size(808, 113);
             this.handledByMulithreadReport.TabIndex = 20;
@@ -106,7 +104,6 @@
             this.opendButNotClosedReporter.Location = new System.Drawing.Point(12, 217);
             this.opendButNotClosedReporter.Multiline = true;
             this.opendButNotClosedReporter.Name = "opendButNotClosedReporter";
-            this.opendButNotClosedReporter.ReadOnly = true;
             this.opendButNotClosedReporter.Scrollbars = System.Windows.Forms.ScrollBars.Both;
             this.opendButNotClosedReporter.Size = new System.Drawing.Size(806, 118);
             this.opendButNotClosedReporter.TabIndex = 26;
@@ -126,7 +123,6 @@
             this.outputView.MaxLength = 52767;
             this.outputView.Multiline = true;
             this.outputView.Name = "outputView";
-            this.outputView.ReadOnly = true;
             this.outputView.Scrollbars = System.Windows.Forms.ScrollBars.Both;
             this.outputView.Size = new System.Drawing.Size(806, 116);
             this.outputView.TabIndex = 28;
@@ -149,7 +145,7 @@
             this.logPathView.TabIndex = 30;
             this.logPathView.Text = "Log Path : ";
             // 
-            // AnalyzeFileLogForm
+            // AnalyzeFileOperateLogForm
             // 
             this.AccessibleRole = System.Windows.Forms.AccessibleRole.TitleBar;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -166,7 +162,7 @@
             this.Controls.Add(this.closedButTryingWriteReport);
             this.Controls.Add(this.ultraLabel1);
             this.Controls.Add(this.ultraLabel2);
-            this.Name = "AnalyzeFileLogForm";
+            this.Name = "AnalyzeFileOperateLogForm";
             this.Text = "File Log Analyzer";
             ((System.ComponentModel.ISupportInitialize)(this.closedButTryingWriteReport)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.handledByMulithreadReport)).EndInit();
