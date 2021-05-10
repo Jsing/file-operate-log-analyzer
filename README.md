@@ -2,6 +2,7 @@
 
 특정 프로세스의 파일 API 호출 로그를 분석하여 파일 API 사용 상의 오류를 찾습니다. FileOperateLogAnalyzer 는 아래의 오류 케이스를 찾아서 리포팅합니다.
 - 멀티쓰레드 환경에서 닫힌 파일에 대한 쓰기 시도를 하는 케이스
+- 파일을 열고 닫지 않는 케이스 
 - 512개 이상의 파일을 동시에 열고 쓰기를 시도하는 케이스 
 
 파일 API 로그는 Process Monitor 를 통해 수집합니다. ( [Process Monitor v3.70 바로가기](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) )
