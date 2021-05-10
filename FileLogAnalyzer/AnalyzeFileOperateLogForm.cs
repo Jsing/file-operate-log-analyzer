@@ -128,8 +128,6 @@ namespace FileLogAnalyzer
             outputView.AppendText("Total = " + outputReportCount + "\r\n");
             opendButNotClosedReporter.AppendText("Total = " + openedButNotClosedReportCount + "\r\n");
             closedButTryingWriteReport.AppendText("Total = " + closedButTryingWriteCount + "\r\n");
-            handledByMulithreadReport.AppendText("Total = " + handledByMuliTreadCount + "\r\n");
-
         }
 
 
@@ -139,18 +137,7 @@ namespace FileLogAnalyzer
 
             if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == true)
             {
-                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
-                {
-                    handledByMulithreadReport.AppendText("- 기존에 열린 파일을 다른 쓰레드에서 다시 엽니다 - " + fileOperateLog.ToKeyString() + "\r\n");
-                    handledByMuliTreadCount++;
-                }
-
                 alreadyTrackItem.OpenCount++;
-                if (alreadyTrackItem.OpenCount > 1)
-                {
-                    outputView.AppendText("- 같은 파일을 2번 이상 엽니다 - " + fileOperateLog.ToKeyString() + "\r\n");
-                    outputReportCount++;
-                }
             }
             else
             {
@@ -179,12 +166,6 @@ namespace FileLogAnalyzer
 
             if (trackOpenFileDictionary.TryGetValue(fileOperateLog.FilePath, out alreadyTrackItem) == true)
             {
-                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
-                {
-                    handledByMulithreadReport.AppendText("- 기존에 다른 쓰레드에서 열린 파일을 닫습니다 - " + fileOperateLog.ToKeyString() + "\r\n");
-                    handledByMuliTreadCount++;
-                }
-
                 alreadyTrackItem.OpenCount--;
                 if (alreadyTrackItem.OpenCount <= 0)
                 {
@@ -206,15 +187,6 @@ namespace FileLogAnalyzer
             {
                 closedButTryingWriteReport.AppendText("- " + fileOperateLog.ToKeyString() + "\r\n");
                 closedButTryingWriteCount++;
-            }
-            else
-            {
-                // 서로 다른 쓰레드에서 접근하는 파일 추적 
-                if (fileOperateLog.ThreadId != alreadyTrackItem.ThreadId)
-                {
-                    handledByMulithreadReport.AppendText("- " + fileOperateLog.ToKeyString() + "\r\n");
-                    handledByMuliTreadCount++;
-                }
             }
         }
 
@@ -252,7 +224,6 @@ namespace FileLogAnalyzer
         {
             outputView.Clear();
             closedButTryingWriteReport.Clear();
-            handledByMulithreadReport.Clear();
             opendButNotClosedReporter.Clear();
         }
     }
