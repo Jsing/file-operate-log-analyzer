@@ -4,7 +4,7 @@ FileOperateLogAnalyzer 는 특정 프로세스의 파일 API 호출 로그를 �
 - 파일을 열고 닫지 않는 케이스 
 - 닫힌 파일에 대한 쓰기 시도를 하는 케이스
 
-## 개발하게 된 이유 
+## 만든 이유 
 - MFC 기반의 서버 프로그램이 아래와 같은 오류 메시지를 남기며 간헐적으로 비정상 종료되기 시작했습니다. 
 
 ![](https://images.velog.io/images/joosing/post/a43108da-c2cb-4f50-9c65-8dad44ad0dbd/image.png)
