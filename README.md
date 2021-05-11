@@ -4,11 +4,6 @@ FileOperateLogAnalyzer 는 특정 프로세스의 파일 API 호출 로그를 �
 - 파일을 열고 닫지 않는 케이스 
 - 닫힌 파일에 대한 쓰기 시도를 하는 케이스
 
-FileOperateLogAnlayzer의 입력은 [Process Monitor](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) 를 통해 수집한 파일 관련 API 호출 로그입니다. Process Monitor 에서 API 호출 로그 수집 시 아래의 API만 필터링하여 수집하면 됩니다. 
-- CreateFile, CloseFile, WriteFile, ReadFile
-
-[Process Monitor 사용법](https://velog.io/@joosing/Process-Monitor-ProcMon.exe-%ED%8A%B9%EC%A0%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8%EC%9D%B4-%EB%9F%B0%ED%83%80%EC%9E%84%EC%97%90-%ED%98%B8%EC%B6%9C%ED%95%98%EB%8A%94-Windows-API-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%95%98%EA%B8%B0)은 링크를 참고하시면 도움이  됩니다. 
-
 ## 개발하게 된 이유 
 - MFC 기반의 서버 프로그램이 아래와 같은 오류 메시지를 남기며 간헐적으로 비정상 종료되기 시작했다.
 
@@ -20,13 +15,13 @@ FileOperateLogAnlayzer의 입력은 [Process Monitor](https://docs.microsoft.com
 - 그래서 Process Monitor를 통해 프로그램 실행 중 파일 API 호출 로그를 수집했고, 7만여 라인의 로그를 분석하기 위한 자동화된 소프트웨어를 개발하게 되었다.
 
 
-## 실행방법
-- Process Monitor 프로그램을 통해 런타임 File API 호출 로그를 수집하고 CSV 파일로 내보내기 한다. 관련 로그 수집 및 내보내기 방법은 다음 글을 참고한다. 
-- FileOperateLogAnalyzer 를 실행한다.
-- Start 버튼을 선택하고 내보내기한 CSV 파일을 선택한다.
-- 결과를 확인한다. 
+## 프로그램 입력 
+FileOperateLogAnlayzer의 입력은 [Process Monitor](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) 를 통해 수집한 파일 관련 API 호출 로그입니다. Process Monitor 에서 API 호출 로그 수집 시 아래의 API만 필터링하여 수집하면 됩니다. 
+- CreateFile, CloseFile, WriteFile, ReadFile
 
-## 실행결과
+[Process Monitor 사용법](https://velog.io/@joosing/Process-Monitor-ProcMon.exe-%ED%8A%B9%EC%A0%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8%EC%9D%B4-%EB%9F%B0%ED%83%80%EC%9E%84%EC%97%90-%ED%98%B8%EC%B6%9C%ED%95%98%EB%8A%94-Windows-API-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%95%98%EA%B8%B0)은 링크를 참고하시면 도움이  됩니다. 
+
+## 실행 결과
 - Output 뷰 : 동시에 열린 파일 개수 최대치 출력
 - 열리고 닫히지 않은 파일 뷰 : 열리고 닫히지 않은 파일 목록 및 전체 개수 출력
 - 닫힌 파일에 대한 쓰기 시도 뷰 : 닫힌 파일에 대한 쓰기 시도한 파일 목록 및 전체 개수 출력
