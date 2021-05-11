@@ -1,11 +1,13 @@
 # FileOperateLogAnalyzer
-
-특정 프로세스의 파일 API 호출 로그를 분석하여 파일 API 사용 상의 오류를 찾습니다. FileOperateLogAnalyzer 는 아래의 오류 케이스를 찾아서 리포팅합니다.
+FileOperateLogAnalyzer 는 특정 프로세스의 파일 API 호출 로그를 분석하여 파일 API 사용 상의 오류를 찾습니다. 구체적으로 아래의 오류 케이스를 찾아서 리포팅합니다.
 - 512개 이상의 파일을 동시에 열고 쓰기를 시도하는 케이스 
 - 파일을 열고 닫지 않는 케이스 
 - 닫힌 파일에 대한 쓰기 시도를 하는 케이스
 
-파일 API 로그는 Process Monitor 를 통해 수집합니다. ( [Process Monitor v3.70 바로가기](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) )
+FileOperateLogAnlayzer의 입력은 [Process Monitor](https://docs.microsoft.com/en-us/sysinternals/downloads/procmon) 를 통해 수집한 파일 관련 API 호출 로그입니다. Process Monitor 에서 API 호출 로그 수집 시 아래의 API만 필터링하여 수집하면 됩니다. 
+- CreateFile, CloseFile, WriteFile, ReadFile
+
+[Process Monitor 사용법](https://velog.io/@joosing/Process-Monitor-ProcMon.exe-%ED%8A%B9%EC%A0%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%A8%EC%9D%B4-%EB%9F%B0%ED%83%80%EC%9E%84%EC%97%90-%ED%98%B8%EC%B6%9C%ED%95%98%EB%8A%94-Windows-API-%EB%AA%A8%EB%8B%88%ED%84%B0%EB%A7%81-%ED%95%98%EA%B8%B0)은 링크를 참고하시면 도움이  됩니다. 
 
 ## 개발하게 된 이유 
 - MFC 기반의 서버 프로그램이 아래와 같은 오류 메시지를 남기며 약 1달에 한 번 가량 비정상 종료되기 시작했다.
