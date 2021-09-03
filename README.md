@@ -35,7 +35,7 @@
 
 
 # 개발환경 
-- C++, MFC 
+- C# 
 - Visual Studio 2019
 - .NET Framework 4.7.2 
 
