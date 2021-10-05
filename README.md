@@ -1,4 +1,6 @@
 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FJsing%2Ffile-operate-log-analyzer&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+
 
 ## 개요
 본 프로그램은 특정 프로세스의 **런타임 파일 API 호출 로그를 분석하여 API 사용 상의 오류**를 찾습니다. 구체적으로 아래의 오류 케이스를 찾아서 리포팅합니다.
